@@ -1,0 +1,65 @@
+// Segment Tree to find minimum element in a given range
+
+#include<bits/stdc++.h>
+using namespace std;
+
+// By making a class we can use the same code to build segment tree for more than one arrays
+class SegmentTree
+{
+public:
+    vector<int> seg;
+    SegmentTree(int n)  
+    {
+        seg.resize(4*n+1);
+    }
+
+    // Function to build segment tree
+    void build(int ind, int low, int high, vector<int>& nums)
+    {
+        if(low==high)
+        {
+            seg[ind] = nums[low];
+            return;
+        }
+        int mid = (low+high)/2;
+        build(2*ind+1,low,mid,nums);
+        build(2*ind+2,mid+1,high,nums);
+        seg[ind] = min(seg[2*ind+1],seg[2*ind+2]);
+    }
+
+    // Function to find minimum in a given range
+    // [low, high] are array indices and [l, r] are query indices
+    int MinQuery(int ind, int low, int high, int l, int r)
+    {
+        // no overlap
+        // l r low high or low high l r 
+        if(r < low || high < l)
+            return INT_MAX;
+
+        // complete overlap
+        // l low high r
+        if(low >= l && high <= r)
+            return seg[ind];
+        
+        int mid = (low + high) >> 1;
+        int left = MinQuery(2*ind+1, low, mid, l, r);
+        int right = MinQuery(2*ind+2, mid+1, high, l, r);
+        return min(left,right);
+    }
+
+    //Function to update any index with a given number
+    void update(int ind, int low, int high, int i, int val)
+    {
+        if(low==high)
+        {
+            seg[ind] = val;
+            return;
+        }
+        int mid = (low + high) >> 1;
+        if(i<=mid)
+            update(2*ind+1, low, mid, i, val);
+        else    
+            update(2*ind+2, mid+1, high, i, val);
+        seg[ind] = min(seg[2*ind+1],seg[2*ind+2]);
+    }
+};
